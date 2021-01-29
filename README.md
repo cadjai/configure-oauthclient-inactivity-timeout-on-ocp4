@@ -18,12 +18,13 @@ Role Variables
 - ocp_cluster_console_url: The URL of the api server to use to interact with the cluster. 
 - ocp_cluster_console_port: The api port of the cluster (default to 6443).
 - oauthclients_to_update: The various oauthclients to be updated. This is a dictinary with a key representing the client to update and a boolean value for the attribute/value update.
+    - update: Flag to indicate if this client needs to be updated
+    - name: Actual name of resource 
+    - client_secret: The secret that applies to the client. Only used when create a new yaml file to apply instead of the patch command.
+    - console_url: The FQDN of the console if applicable. Only used when create a new yaml file to apply instead of the patch command.
+    - oauth_server_url: The FQDN or route to the oauth server if applicable. Only used when create a new yaml file to apply instead of the patch command.
 - staging_dir: The directory where the rendered yaml config is placed on the controller to be used to update the config (default to /tmp/). 
-- console_url: The fqdn or route of the console client. 
-- console_client_secret: The secret for the console client whose timeout is being set.
 - client_inactivity_timeout_seconds: The inactivity timeout being set for the client.
-- ocp_oauth_server_url: The fqdn of the OCP oauth server (OCP or otherwise).
-- browser_client_secret: The secret for the browser client whose timeout is being set.
 
 Dependencies
 ------------
