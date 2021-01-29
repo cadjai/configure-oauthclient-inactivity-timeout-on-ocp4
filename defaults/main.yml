@@ -3,11 +3,30 @@
 ansible_name_module: 'config-inactivity-timeout-on-ocp4'
 openshift_cli: 'oc'
 oauthclients_to_update:
+  oauthserver:
+    update: true
+    name: 'cluster'
+    timeout: '15m'
   console-client:
     update: true
+    name: 'console'
+    timeout: '300'
+    client_secret: ''
+    console_url: ''
+    oath_server_url: ''
   browser-client:
     update: true
+    name: 'openshift-challenging-client'
+    timeout: '300'
+    client_secret: ''
+    console_url: ''
+    oath_server_url: ''
   challenging-client:
     update: false
+    name: 'openshift-browser-client'
+    timeout: '300'
+    client_secret: ''
+    console_url: ''
+    oath_server_url: ''
 staging_dir: '/tmp'
 client_inactivity_timeout_seconds: '300'

@@ -1,0 +1,35 @@
+---
+# tasks file for config-inactivity-timeout-on-ocp4
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth server inactivity timeout'
+  command: >
+    {{ openshift_cli }} patch oauth cluster --type merge -p '{"spec":{"tokenConfig":{"accessTokenInactivityTimeout": "{{ item.value.timeout }}" }}}'
+  when: 
+    - item.key == 'oauthserver'
+    - item.value['update'] is defined
+    - item.value['update'] | bool == true
+  with_dict:
+    - "{{ oauthclients_to_update }}"
+  register: oauthserver_updated
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Check pod status'
+  shell: >
+    {{ openshift_cli }} get clustroperators authentication | grep -i progressing 
+  when: 
+    - item.key == 'oauthserver'
+    - item.value['update'] is defined
+    - item.value['update'] | bool == true
+  with_dict:
+    - "{{ oauthclients_to_update }}"
+  register: co_restart_check
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth clients inactivity timeout'
+  command: >
+    {{ openshift_cli }} patch oauthclient {{ item.value['name'] }} --type merge -p '{"accessTokenInactivityTimeoutSeconds":"{{ item.value.timeout }}" }'
+  when: 
+    - item.key != 'oauthserver'
+    - item.value['update'] is defined
+    - item.value['update'] | bool == true
+  with_dict:
+    - "{{ oauthclients_to_update }}"
+  register: oauthclient_updated
+

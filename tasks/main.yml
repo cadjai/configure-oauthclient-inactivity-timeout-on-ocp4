@@ -8,29 +8,13 @@
       --insecure-skip-tls-verify=true {{ ocp_cluster_console_url }}:{{ ocp_cluster_console_port | d('6443', true) }}
   register: login_out
 
-- name: '{{ ansible_name_module }} | set_fact | Ensure go home var is set'
-  set_fact:
-    template_prefix: "oauthclient-"
-    template_suffix: ".yml.j2"
-
-- name: '{{ ansible_name_module }} | template | Copy OathClient templates to staging location'
-  template:
-    src: "{{ template_prefix }}{{ item.key }}{{ template_suffix }}"
-    dest: "{{ staging_dir }}/{{ item.key }}.yml"
-  when: 
-    - item.value['update'] is defined
-    - item.value['update'] | bool == true
-  with_dict:
-    - "{{ oauthclients_to_update }}"
-  register: templates_copied
-
-- name: '{{ ansible_name_module }} | command | Patch OauthClient objects'
-  command: >
-    {{ openshift_cli }} apply -f {{ staging_dir }}/{{ item.key }}.yml
+- name: '{{ ansible_name_module }} | import_tasks | Use oc apply -f  to patch oauth resources'
+  include_tasks: apply-template.yml
   when:
-    - item.value.update is defined
-    - item.value.update | bool
-  with_dict:
-    - "{{ oauthclients_to_update }}"
-  register: oauthclient_updated
+    - apply_template is defined
+    - apply_template | bool
 
+- name: '{{ ansible_name_module }} | import_tasks | Use oc patch to patch oauth resources'
+  include_tasks: patch.yml
+  when:
+    - not apply_template is defined or not apply_template | bool
