@@ -1,0 +1,11 @@
+apiVersion: oauth.openshift.io/v1
+grantMethod: auto
+kind: OAuthClient
+metadata:
+  annotations:
+    release.openshift.io/create-only: "true"
+  name: console
+redirectURIs:
+- https://{{ console_url }}/auth/callback
+secret: {{ console_client_secret }}
+accessTokenInactivityTimeoutSeconds: {{ client_inactivity_timeout_seconds }}

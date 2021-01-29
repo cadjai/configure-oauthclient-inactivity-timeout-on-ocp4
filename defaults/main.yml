@@ -1,0 +1,13 @@
+---
+# defaults file for config-inactivity-timeout-on-ocp4
+ansible_name_module: 'config-inactivity-timeout-on-ocp4'
+openshift_cli: 'oc'
+oauthclients_to_update:
+  console-client:
+    update: true
+  browser-client:
+    update: true
+  challenging-client:
+    update: false
+staging_dir: '/tmp'
+client_inactivity_timeout_seconds: '300'

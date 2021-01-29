@@ -1,0 +1,9 @@
+apiVersion: oauth.openshift.io/v1
+grantMethod: auto
+kind: OAuthClient
+metadata:
+  name: openshift-challenging-client
+redirectURIs:
+- https://{{ ocp_oauth_server_url }}/oauth/token/implicit
+respondWithChallenges: true
+accessTokenInactivityTimeoutSeconds: {{ client_inactivity_timeout_seconds }}
