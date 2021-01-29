@@ -11,16 +11,53 @@
     - "{{ oauthclients_to_update }}"
   register: oauthserver_updated
 
-- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Check pod status'
+#- name: '{{ ansible_name_module }} | k8s | Check pod status'
+#  when:
+#    - oauthserver_updated is defined
+#    - oauthserver_updated.rc is defined
+#    - oauthserver_updated.rc == '0' 
+#  k8s:
+#    api_version: config.openshift.io/v1 
+#    kind: ClusterOperator
+#    name: authentication
+#    wait: yes
+#    wait_condition:
+#      type: ??? 
+#      status: True
+#    wait_sleep: 10
+#    wait_timeout: 10
+#  register: oauth_pod_ready
+#  until:
+#    - oauth_pod_ready.result.status.conditions[0].ready|d(False)|bool
+#    #- oauth_pod_ready.result.status.phase == "Running"
+#    retries: 20
+#    delay: 20
+#    changed_when: false
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Check authentication clusteroperator status'
   shell: >
-    {{ openshift_cli }} get clustroperators authentication | grep -i progressing 
+    {{ openshift_cli }} get clusteroperators authentication --no-headers | awk '{print $4}' 
   when: 
     - item.key == 'oauthserver'
     - item.value['update'] is defined
     - item.value['update'] | bool == true
   with_dict:
     - "{{ oauthclients_to_update }}"
-  register: co_restart_check
+  register: authco_check
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Check kube-apiserver clusteroperator status'
+  shell: >
+    {{ openshift_cli }} get clusteroperators kube-apiserver --no-headers | awk '{print $4}' 
+  when: 
+    - item.key == 'oauthserver'
+    - item.value['update'] is defined
+    - item.value['update'] | bool == true
+    - authco_check is defined
+    - authco_check.stdout is defined
+    - authco_check.stdout | bool == true 
+  with_dict:
+    - "{{ oauthclients_to_update }}"
+  register: kubeco_check
 
 - name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth clients inactivity timeout'
   command: >
@@ -32,4 +69,3 @@
   with_dict:
     - "{{ oauthclients_to_update }}"
   register: oauthclient_updated
-

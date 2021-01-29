@@ -38,17 +38,38 @@ Note that the update key in the oauthclients_to_update dictionary for the consol
 
     - hosts: localhost
       vars:
+        oauthclients_to_update:
+          oauthserver:
+            update: false
+            name: 'cluster'
+            timeout: '15m'
+          console-client:
+            update: true
+            name: 'console'
+            timeout: '<your-desired-timeout-value-in-seconds>'
+            client_secret: '<your-console-oauthclient-secret>'
+            console_url: '<your-console-route>'
+            oath_server_url: '<your-oauth-server-route>'
+          browser-client:
+            update: false
+            name: 'openshift-challenging-client'
+            timeout: '<your-desired-timeout-value-in-seconds>'
+            client_secret: '<your-browser-oauthclient-secret>'
+            console_url: ''
+            oath_server_url: '<your-oauth-server-route>'
+          challenging-client:
+            update: false
+            name: 'openshift-browser-client'
+            timeout: '<your-desired-timeout-value-in-seconds>'
+            client_secret: ''
+            console_url: ''
+            oath_server_url: '<your-oauth-server-route>'
         ansible_python_interpreter: /usr/bin/python3
         openshift_cli: '/usr/bin/oc'
         ocp_cluster_user: '<your-cluster-admin-user>'
         ocp_cluster_user_password: '<your-cluster-admin-user-password>'
         ocp_cluster_console_url: 'https://<your-api-route>'
         ocp_cluster_console_port: '6443'
-        console_url: '<your-console-route>'
-        console_client_secret: '<your-console-oauthclient-secret>'
-        client_inactivity_timeout_seconds: '<your-desired-timeout-value-in-seconds>'
-        ocp_oauth_server_url: '<your-oauth-server-route>'
-        browser_client_secret: '<your-browser-oathclient-route>' 
       roles:
          - { role: config-inactivity-timeout-on-ocp4 }
 
