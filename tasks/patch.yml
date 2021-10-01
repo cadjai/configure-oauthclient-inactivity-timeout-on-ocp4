@@ -7,6 +7,21 @@
     - item.key == 'oauthserver'
     - item.value['update'] is defined
     - item.value['update'] | bool == true
+    - item.value['timeout'] is defined
+    - item.value['timeout'] != '' 
+  with_dict:
+    - "{{ oauthclients_to_update }}"
+  register: oauthserver_updated
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth server Access max age timeout'
+  command: >
+    {{ openshift_cli }} patch oauth cluster --type merge -p '{"spec":{"tokenConfig":{"accessTokenMaxAgeSeconds": "{{ item.value.maxage }}" }}}'
+  when:
+    - item.key == 'oauthserver'
+    - item.value['update'] is defined
+    - item.value['update'] | bool == true
+    - item.value['maxage'] is defined
+    - item.value['maxage'] != '' 
   with_dict:
     - "{{ oauthclients_to_update }}"
   register: oauthserver_updated
