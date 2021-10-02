@@ -15,7 +15,7 @@
 
 - name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth server Access max age timeout'
   command: >
-    {{ openshift_cli }} patch oauth cluster --type merge -p '{"spec":{"tokenConfig":{"accessTokenMaxAgeSeconds": "{{ item.value.maxage }}" }}}'
+    {{ openshift_cli }} patch oauth cluster --type merge -p '{"spec":{"tokenConfig":{"accessTokenMaxAgeSeconds": {{ item.value.maxage | int }} }}}'
   when:
     - item.key == 'oauthserver'
     - item.value['update'] is defined
@@ -76,7 +76,7 @@
 
 - name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth clients inactivity timeout'
   command: >
-    {{ openshift_cli }} patch oauthclient {{ item.value['name'] }} --type merge -p '{"accessTokenInactivityTimeoutSeconds":"{{ item.value.timeout }}" }'
+    {{ openshift_cli }} patch oauthclient {{ item.value['name'] }} --type merge -p '{"accessTokenInactivityTimeoutSeconds": {{ item.value.timeout | int }} }'
   when: 
     - item.key != 'oauthserver'
     - item.value['update'] is defined
