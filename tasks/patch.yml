@@ -84,3 +84,21 @@
   with_dict:
     - "{{ oauthclients_to_update }}"
   register: oauthclient_updated
+
+  ### a catch all to set inactivity timeout for all oauth clients for which we don't have config
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Retrieve all oauth clients'
+  shell: >
+     {{ openshift_cli }}  get oauthclient --no-headers | awk '{print $1}'
+  register: oauthclients
+
+- name: '{{ ansible_name_module }} | command:{{ openshift_cli }} | Patch OAuth clients inactivity timeout'
+  command: >
+    {{ openshift_cli }} patch oauthclient {{ item }} --type merge -p '{"accessTokenInactivityTimeoutSeconds": {{ oauthclients_to_update["console-client"]["timeout"] | int }} }'
+  loop: "{{ oauthclients.stdout_lines | list }}"
+  when:
+    - oauthclients is defined
+    - oauthclients.rc is defined
+    - oauthclients.rc == 0
+    - oauthclients.stdout_lines is defined
+    - oauthclients.stdout_lines | length > 0
+    - not item in oauthclients_to_update.keys()
